@@ -198,4 +198,13 @@ public class MainApplicationFrame extends JFrame
             System.exit(0);
         }
     }
+
+    @Override
+    protected void processWindowEvent(java.awt.event.WindowEvent e) {
+        if (e.getID() == java.awt.event.WindowEvent.WINDOW_CLOSING) {
+            exitApplication();
+        } else {
+            super.processWindowEvent(e);
+        }
+    }
 }
