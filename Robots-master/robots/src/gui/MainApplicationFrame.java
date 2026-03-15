@@ -4,6 +4,10 @@ import java.awt.Dimension;
 import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 import java.awt.event.InputEvent;
+import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.Properties;
 
 import javax.swing.JDesktopPane;
 import javax.swing.JFrame;
@@ -28,6 +32,9 @@ import log.Logger;
 public class MainApplicationFrame extends JFrame
 {
     private final JDesktopPane desktopPane = new JDesktopPane();
+
+    private static final String CONFIG_DIR = System.getProperty("user.home");
+    private static final String CONFIG_FILE = CONFIG_DIR + File.separator + "robots_config.properties";
 
     public MainApplicationFrame() {
         //Make the big window be indented 50 pixels from each edge
@@ -97,6 +104,31 @@ public class MainApplicationFrame extends JFrame
 //
 //        return menuBar;
 //    }
+
+    private void saveWindowStates()
+    {
+        Properties props = new Properties();
+        JInternalFrame[] frames = desktopPane.getAllFrames();
+
+        for (JInternalFrame frame : frames)
+        {
+            String title = frame.getTitle();
+            props.setProperty(title + ".iconified", String.valueOf(frame.isIcon()));
+            props.setProperty(title + ".width", String.valueOf(frame.getWidth()));
+            props.setProperty(title + ".height", String.valueOf(frame.getHeight()));
+            props.setProperty(title + ".x", String.valueOf(frame.getX()));
+            props.setProperty(title + ".y", String.valueOf(frame.getY()));
+        }
+
+        try (FileOutputStream out = new FileOutputStream(CONFIG_FILE))
+        {
+            props.store(out, null);
+        }
+        catch (IOException e)
+        {
+            Logger.debug("Не получилось сохранить конфигурацию окон");
+        }
+    }
 
     private JMenuBar generateMenuBar()
     {
@@ -195,6 +227,7 @@ public class MainApplicationFrame extends JFrame
 //        UIManager.put("OptionPane.noButtonText", null);
 
         if (result == JOptionPane.YES_OPTION) {
+            saveWindowStates();
             System.exit(0);
         }
     }
