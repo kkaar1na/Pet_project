@@ -5,6 +5,7 @@ import java.awt.Toolkit;
 import java.awt.event.KeyEvent;
 import java.awt.event.InputEvent;
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Properties;
@@ -20,6 +21,7 @@ import javax.swing.KeyStroke;
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
 import javax.swing.UnsupportedLookAndFeelException;
+import java.beans.PropertyVetoException;
 
 import log.Logger;
 
@@ -54,6 +56,8 @@ public class MainApplicationFrame extends JFrame
         GameWindow gameWindow = new GameWindow();
         gameWindow.setSize(400,  400);
         addWindow(gameWindow);
+
+        restoreWindowStates();
 
         setJMenuBar(generateMenuBar());
         setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -127,6 +131,61 @@ public class MainApplicationFrame extends JFrame
         catch (IOException e)
         {
             Logger.debug("Не получилось сохранить конфигурацию окон");
+        }
+    }
+
+    private void restoreWindowStates()
+    {
+        File configFile = new File(CONFIG_FILE);
+        if (!configFile.exists())
+        {
+            return;
+        }
+
+        Properties props = new Properties();
+
+        try (FileInputStream in = new FileInputStream(configFile))
+        {
+            props.load(in);
+        }
+        catch (IOException e)
+        {
+            Logger.debug("Не получилось загрузить конфигурацию окон");
+            return;
+        }
+
+        JInternalFrame[] frames = desktopPane.getAllFrames();
+        for (JInternalFrame frame : frames)
+        {
+            String title = frame.getTitle();
+            if (props.getProperty(title + ".x") == null ||
+                    props.getProperty(title + ".y") == null ||
+                    props.getProperty(title + ".width") == null ||
+                    props.getProperty(title + ".height") == null ||
+                    props.getProperty(title + ".iconified") == null) {
+                continue;
+            }
+
+            boolean iconified = Boolean.parseBoolean(props.getProperty(title + ".iconified"));
+            int width = Integer.parseInt(props.getProperty(title + ".width"));
+            int height = Integer.parseInt(props.getProperty(title + ".height"));
+            int x = Integer.parseInt(props.getProperty(title + ".x"));
+            int y = Integer.parseInt(props.getProperty(title + ".y"));
+
+
+            frame.setSize(width, height);
+            frame.setLocation(x, y);
+
+            if (iconified)
+            {
+                try
+                {
+                    frame.setIcon(true);
+                }
+                catch (PropertyVetoException ex){
+
+                }
+            }
         }
     }
 
