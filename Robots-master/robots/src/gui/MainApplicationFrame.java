@@ -117,11 +117,41 @@ public class MainApplicationFrame extends JFrame
         for (JInternalFrame frame : frames)
         {
             String title = frame.getTitle();
-            props.setProperty(title + ".iconified", String.valueOf(frame.isIcon()));
+            boolean iconified = frame.isIcon();
+
+            props.setProperty(title + ".iconified", String.valueOf(iconified));
+
+            if (iconified)
+            {
+                int iconX = frame.getDesktopIcon().getX();
+                int iconY = frame.getDesktopIcon().getY();
+                props.setProperty(title + ".iconX", String.valueOf(iconX));
+                props.setProperty(title + ".iconY", String.valueOf(iconY));
+
+                try
+                {
+                    frame.setIcon(false);
+                }
+                catch (PropertyVetoException ex)
+                {
+                }
+            }
+
             props.setProperty(title + ".width", String.valueOf(frame.getWidth()));
             props.setProperty(title + ".height", String.valueOf(frame.getHeight()));
             props.setProperty(title + ".x", String.valueOf(frame.getX()));
             props.setProperty(title + ".y", String.valueOf(frame.getY()));
+
+            if (iconified)
+            {
+                try
+                {
+                    frame.setIcon(true);
+                }
+                catch (PropertyVetoException ex)
+                {
+                }
+            }
         }
 
         try (FileOutputStream out = new FileOutputStream(CONFIG_FILE))
