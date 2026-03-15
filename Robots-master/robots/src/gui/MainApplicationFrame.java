@@ -57,8 +57,6 @@ public class MainApplicationFrame extends JFrame
         gameWindow.setSize(400,  400);
         addWindow(gameWindow);
 
-        restoreWindowStates();
-
         setJMenuBar(generateMenuBar());
         setDefaultCloseOperation(EXIT_ON_CLOSE);
     }
@@ -164,7 +162,7 @@ public class MainApplicationFrame extends JFrame
         }
     }
 
-    private void restoreWindowStates()
+    public void restoreWindowStates()
     {
         File configFile = new File(CONFIG_FILE);
         if (!configFile.exists())
@@ -202,7 +200,6 @@ public class MainApplicationFrame extends JFrame
             int x = Integer.parseInt(props.getProperty(title + ".x"));
             int y = Integer.parseInt(props.getProperty(title + ".y"));
 
-
             frame.setSize(width, height);
             frame.setLocation(x, y);
 
@@ -211,6 +208,13 @@ public class MainApplicationFrame extends JFrame
                 try
                 {
                     frame.setIcon(true);
+
+                    if (props.getProperty(title + ".iconX") != null)
+                    {
+                        int iconX = Integer.parseInt(props.getProperty(title + ".iconX"));
+                        int iconY = Integer.parseInt(props.getProperty(title + ".iconY"));
+                        frame.getDesktopIcon().setLocation(iconX, iconY);
+                    }
                 }
                 catch (PropertyVetoException ex){
 
