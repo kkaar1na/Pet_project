@@ -24,6 +24,7 @@ import javax.swing.UnsupportedLookAndFeelException;
 import java.beans.PropertyVetoException;
 
 import log.Logger;
+import model.RobotModel;
 
 /**
  * Что требуется сделать:
@@ -37,6 +38,8 @@ public class MainApplicationFrame extends JFrame
 
     private static final String CONFIG_DIR = System.getProperty("user.home");
     private static final String CONFIG_FILE = CONFIG_DIR + File.separator + "robots_config.properties";
+
+    private final RobotModel robotModel = new RobotModel();
 
     public MainApplicationFrame() {
         //Make the big window be indented 50 pixels from each edge
@@ -53,9 +56,12 @@ public class MainApplicationFrame extends JFrame
         LogWindow logWindow = createLogWindow();
         addWindow(logWindow);
 
-        GameWindow gameWindow = new GameWindow();
-        gameWindow.setSize(400,  400);
+        GameWindow gameWindow = new GameWindow(robotModel);
+        gameWindow.setSize(400, 400);
         addWindow(gameWindow);
+
+        RobotCoordinatesWindow coordinatesWindow = new RobotCoordinatesWindow(robotModel);
+        addWindow(coordinatesWindow);
 
         setJMenuBar(generateMenuBar());
         setDefaultCloseOperation(EXIT_ON_CLOSE);
@@ -208,13 +214,6 @@ public class MainApplicationFrame extends JFrame
                 try
                 {
                     frame.setIcon(true);
-
-                    if (props.getProperty(title + ".iconX") != null)
-                    {
-                        int iconX = Integer.parseInt(props.getProperty(title + ".iconX"));
-                        int iconY = Integer.parseInt(props.getProperty(title + ".iconY"));
-                        frame.getDesktopIcon().setLocation(iconX, iconY);
-                    }
                 }
                 catch (PropertyVetoException ex){
 
